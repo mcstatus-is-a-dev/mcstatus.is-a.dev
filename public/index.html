@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>mcstatus.is-a.dev</title>
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+      position: relative;
+    }
+    .container {
+      text-align: center;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      margin: 20px 0;
+      width: 300px;
+      background-color: #161b22;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #238636;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .server-info {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .server-info img {
+      margin-right: 20px;
+    }
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      color: #2196F3;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form id="serverForm" onsubmit="navigateToServer(event)">
+      <input type="text" id="serverIp" placeholder="Enter server IP" required>
+      <button type="submit">Get Status</button>
+    </form>
+    <div id="result" class="server-info"></div>
+    <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
+  </div>
+  <script>
+    function navigateToServer(event) {
+      event.preventDefault();
+      const serverIp = document.getElementById('serverIp').value;
+      window.location.href = `/${serverIp}`;
+    }
+  </script>
+</body>
+</html>
