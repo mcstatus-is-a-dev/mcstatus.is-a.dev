@@ -1,7 +1,7 @@
 const express = require('express');
 const mc = require('minecraft-protocol');
 const app = express();
-const port = process.env.PORT || 443; // Use port 443 by default, or environment variable if set
+const port = process.env.PORT || 3000; // Use port 443 by default, or environment variable if set
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
 app.use(express.json()); // Parse JSON request bodies
@@ -131,14 +131,14 @@ app.get('/:serverIp', (req, res) => {
           border-radius: 5px;
           cursor: pointer;
         }
-            .footer {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      color: #2196F3;
-      font-weight: bold;
-      cursor: pointer;
-    }
+        .footer {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          color: #2196F3;
+          font-weight: bold;
+          cursor: pointer;
+        }
       </style>
     </head>
     <body>
@@ -150,6 +150,12 @@ app.get('/:serverIp', (req, res) => {
         <div id="result" class="server-info"></div>
       </div>
       <script>
+        function navigateToServer(event) {
+          event.preventDefault();
+          const serverIp = document.getElementById('serverIp').value;
+          window.location.href = '/' + serverIp;
+        }
+
         async function getStatus() {
           const serverIp = "${serverIp}";
           const resultDiv = document.getElementById('result');
@@ -175,12 +181,6 @@ app.get('/:serverIp', (req, res) => {
           } catch (error) {
             resultDiv.textContent = 'Failed to fetch server status';
           }
-        }
-
-        async function navigateToServer(event) {
-          event.preventDefault();
-          const serverIp = document.getElementById('serverIp').value;
-          window.location.href = \`/${serverIp}\`;
         }
 
         // Automatically fetch status when the page loads
