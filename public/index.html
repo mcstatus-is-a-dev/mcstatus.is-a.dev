@@ -57,9 +57,34 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .sidebar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 200px;
+      background-color: #161b22;
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sidebar a {
+      color: #c9d1d9;
+      text-decoration: none;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    .sidebar a.active {
+      color: #2196F3;
+    }
   </style>
 </head>
 <body>
+  <div class="sidebar">
+    <a href="/" class="active">Home</a>
+    <a href="/api/docs">API</a>
+  </div>
   <div class="container">
     <form id="serverForm" onsubmit="navigateToServer(event)">
       <input type="text" id="serverIp" placeholder="Enter server IP" required>
