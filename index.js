@@ -44,7 +44,7 @@ app.get('/api/status/:serverAddress', (req, res) => {
   }, (err, response) => {
     if (err) {
       console.error(err);
-      res.status(500).json({ error: 'Failed to ping server' });
+      res.status(500).json({ error: 'offline' });
     } else {
       // Extract the server description
       let description;
