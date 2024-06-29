@@ -308,7 +308,7 @@ app.get('/api/docs', (req, res) => {
         <div class="main-content">
           <h1>API Documentation</h1>
           <div class="api-section">
-            <h2>Fetch Server Status</h2>
+            <h2>Server Status</h2>
             <p>Endpoint: <code>/api/status/:serverAddress</code></p>
             <p>Method: GET</p>
             <p>Response (Online):</p>
@@ -331,8 +331,8 @@ app.get('/api/docs', (req, res) => {
 }</pre>
           </div>
           <div class="api-section">
-            <h2>Fetch Server Favicon</h2>
-            <p>Endpoint: <code>/api/png/:serverip</code></p>
+            <h2>Server Icon</h2>
+            <p>Endpoint: <code>/api/png/:serverAddress</code></p>
             <p>Method: GET</p>
             <p>Response: Image (PNG)</p>
           </div>
