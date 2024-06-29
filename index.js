@@ -1,7 +1,7 @@
 const express = require('express');
 const mc = require('minecraft-protocol');
 const app = express();
-const port = process.env.PORT || 3000; // Use port 443 by default, or environment variable if set
+const port = process.env.PORT || 3000; // Use port 3000 by default, or environment variable if set
 
 app.use(express.static('public')); // Serve static files from the 'public' directory
 app.use(express.json()); // Parse JSON request bodies
@@ -139,15 +139,41 @@ app.get('/:serverIp', (req, res) => {
           font-weight: bold;
           cursor: pointer;
         }
+        .sidebar {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 200px;
+          background-color: #161b22;
+          padding-top: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .sidebar a {
+          color: #c9d1d9;
+          text-decoration: none;
+          margin: 10px 0;
+          font-size: 18px;
+        }
+        .sidebar a.active {
+          color: #2196F3;
+        }
       </style>
     </head>
     <body>
+      <div class="sidebar">
+        <a href="/" class="active">Home</a>
+        <a href="/api/docs">API</a>
+      </div>
       <div class="container">
         <form id="serverForm" onsubmit="navigateToServer(event)">
           <input type="text" id="serverIp" value="${serverIp}" required>
           <button type="submit">Get Status</button>
         </form>
         <div id="result" class="server-info"></div>
+        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
       </div>
       <script>
         function navigateToServer(event) {
@@ -168,24 +194,138 @@ app.get('/:serverIp', (req, res) => {
             const faviconResponse = await fetch('/api/png/' + serverIp);
             const faviconUrl = faviconResponse.status === 200 ? '/api/png/' + serverIp : '/favicon.png';
 
-            resultDiv.innerHTML = \`
-              <img src="\${faviconUrl}" alt="Server Favicon" width="64" height="64">
-              <div>
-                <p><strong>Version:</strong> \${status.version.name}</p>
-                <p><strong>Players:</strong> \${status.players.online}/\${status.players.max}</p>
-                <p><strong>Description:</strong> \${status.description}</p>
-                <p><strong>Latency(From Frankfurt):</strong> \${status.latency} ms</p>
-              </div>
-              <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
-            \`;
+            if (status.error === 'offline') {
+              resultDiv.innerHTML = '<p>Server is Offline</p>';
+            } else {
+              resultDiv.innerHTML = \`
+                <img src="\${faviconUrl}" alt="Server Favicon" width="64" height="64">
+                <div>
+                  <p><strong>Version:</strong> \${status.version.name}</p>
+                  <p><strong>Players:</strong> \${status.players.online}/\${status.players.max}</p>
+                  <p><strong>Description:</strong> \${status.description}</p>
+                  <p><strong>Latency(From Frankfurt):</strong> \${status.latency} ms</p>
+                </div>
+              \`;
+            }
           } catch (error) {
-            resultDiv.textContent = 'Failed to fetch server status';
+            resultDiv.innerHTML = '<p>Failed to fetch server status</p>';
           }
         }
 
         // Automatically fetch status when the page loads
         getStatus();
       </script>
+    </body>
+    </html>
+  `);
+});
+
+// Serve the API docs page
+app.get('/api/docs', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>mcstatus.is-a.dev - API Docs</title>
+      <link rel="icon" href="/favicon.png" type="image/png">
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          background-color: #0d1117;
+          color: #c9d1d9;
+          font-family: Arial, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          text-align: center;
+        }
+        .container {
+          text-align: center;
+          width: 80%;
+          max-width: 800px;
+        }
+        .footer {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          color: #2196F3;
+          font-weight: bold;
+          cursor: pointer;
+        }
+        .sidebar {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 200px;
+          background-color: #161b22;
+          padding-top: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .sidebar a {
+          color: #c9d1d9;
+          text-decoration: none;
+          margin: 10px 0;
+          font-size: 18px;
+        }
+        .sidebar a.active {
+          color: #2196F3;
+        }
+        .api-section {
+          margin-top: 20px;
+        }
+        pre {
+          background-color: #161b22;
+          color: #c9d1d9;
+          padding: 10px;
+          border-radius: 5px;
+          overflow-x: auto;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="sidebar">
+        <a href="/">Home</a>
+        <a href="/api/docs" class="active">API</a>
+      </div>
+      <div class="container">
+        <h1>API Documentation</h1>
+        <div class="api-section">
+          <h2>Fetch Server Status</h2>
+          <p>Endpoint: <code>/api/status/:serverAddress</code></p>
+          <p>Method: GET</p>
+          <p>Response (Online):</p>
+          <pre>{
+  "version": {
+    "name": "1.16.5",
+    "protocol": 754
+  },
+  "players": {
+    "max": 20,
+    "online": 5,
+    "sample": []
+  },
+  "description": "A Minecraft Server",
+  "latency": 123
+}</pre>
+          <p>Response (Offline):</p>
+          <pre>{
+  "error": "offline"
+}</pre>
+        </div>
+        <div class="api-section">
+          <h2>Fetch Server Favicon</h2>
+          <p>Endpoint: <code>/api/png/:serverip</code></p>
+          <p>Method: GET</p>
+          <p>Response: Image (PNG)</p>
+        </div>
+        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
+      </div>
     </body>
     </html>
   `);
