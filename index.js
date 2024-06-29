@@ -1,10 +1,10 @@
 const express = require('express');
 const mc = require('minecraft-protocol');
 const app = express();
-const port = process.env.PORT || 3000; // Use port 3000 by default, or environment variable if set
+const port = process.env.PORT || 3000;
 
-app.use(express.static('public')); // Serve static files from the 'public' directory
-app.use(express.json()); // Parse JSON request bodies
+app.use(express.static('public'));
+app.use(express.json());
 
 // Endpoint to fetch Minecraft server favicon
 app.get('/api/png/:serverip', (req, res) => {
@@ -36,7 +36,7 @@ app.get('/api/png/:serverip', (req, res) => {
 // Endpoint to fetch Minecraft server status
 app.get('/api/status/:serverAddress', (req, res) => {
   const [serverHost, serverPort] = req.params.serverAddress.split(':');
-  const port = serverPort ? parseInt(serverPort, 10) : 25565; // Default Minecraft server port
+  const port = serverPort ? parseInt(serverPort, 10) : 25565;
 
   mc.ping({
     host: serverHost,
@@ -46,20 +46,15 @@ app.get('/api/status/:serverAddress', (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'offline' });
     } else {
-      // Extract the server description
       let description;
       if (response.description && typeof response.description === 'object' && response.description.extra) {
-        // Handle BungeeCord server descriptions
         description = response.description.extra.map(component => component.text || '').join('');
       } else if (typeof response.description === 'string') {
-        // Handle regular Minecraft server descriptions
         description = response.description;
       } else {
-        // Fallback for unknown response formats
         description = 'Unknown description format';
       }
 
-      // Create a new object with the server info
       const serverInfo = {
         version: response.version,
         players: response.players,
@@ -82,7 +77,7 @@ app.get('/:serverIp', (req, res) => {
   const serverIp = req.params.serverIp;
   res.send(`
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
       <title>mcstatus.is-a.dev</title>
       <link rel="icon" href="/favicon.png" type="image/png">
@@ -90,27 +85,47 @@ app.get('/:serverIp', (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         body {
-          background-color: #0d1117;
-          color: #c9d1d9;
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
+          font-family: 'Courier New', Courier, monospace;
           margin: 0;
-          text-align: center;
+          padding: 0;
+          background-color: #0d1117;
+          color: white;
+          display: flex;
+          height: 100vh;
+          overflow: hidden;
         }
         .container {
-          text-align: center;
-        }
-        .server-info {
-          margin-top: 20px;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          width: 100%;
+          height: 100%;
         }
-        .server-info img {
-          margin-right: 20px;
+        .sidebar {
+          width: 250px;
+          color: white;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+          background-color: rgba(0, 0, 0, 0.5);
+          flex-shrink: 0;
+        }
+        .sidebar a {
+          color: white;
+          text-decoration: none;
+          margin: 10px 0;
+          font-size: 18px;
+          display: block;
+          padding: 10px;
+          border-radius: 8px;
+          transition: background-color 0.3s, border-color 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+          background-color: #1f2937;
+        }
+        .main-content {
+          flex-grow: 1;
+          padding: 20px;
+          overflow-y: auto;
+          background-color: rgba(0, 0, 0, 0.5);
         }
         input[type="text"] {
           padding: 10px;
@@ -131,6 +146,15 @@ app.get('/:serverIp', (req, res) => {
           border-radius: 5px;
           cursor: pointer;
         }
+        .server-info {
+          margin-top: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+        }
+        .server-info img {
+          margin-right: 20px;
+        }
         .footer {
           position: absolute;
           bottom: 10px;
@@ -139,41 +163,22 @@ app.get('/:serverIp', (req, res) => {
           font-weight: bold;
           cursor: pointer;
         }
-        .sidebar {
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          width: 200px;
-          background-color: #161b22;
-          padding-top: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .sidebar a {
-          color: #c9d1d9;
-          text-decoration: none;
-          margin: 10px 0;
-          font-size: 18px;
-        }
-        .sidebar a.active {
-          color: #2196F3;
-        }
       </style>
     </head>
     <body>
-      <div class="sidebar">
-        <a href="/" class="active">Home</a>
-        <a href="/api/docs">API</a>
-      </div>
       <div class="container">
-        <form id="serverForm" onsubmit="navigateToServer(event)">
-          <input type="text" id="serverIp" value="${serverIp}" required>
-          <button type="submit">Get Status</button>
-        </form>
-        <div id="result" class="server-info"></div>
-        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
+        <div class="sidebar">
+          <a href="/" class="active">Home</a>
+          <a href="/api/docs">API</a>
+        </div>
+        <div class="main-content">
+          <form id="serverForm" onsubmit="navigateToServer(event)">
+            <input type="text" id="serverIp" value="${serverIp}" required>
+            <button type="submit">Get Status</button>
+          </form>
+          <div id="result" class="server-info"></div>
+          <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
+        </div>
       </div>
       <script>
         function navigateToServer(event) {
@@ -224,7 +229,7 @@ app.get('/:serverIp', (req, res) => {
 app.get('/api/docs', (req, res) => {
   res.send(`
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
       <title>mcstatus.is-a.dev - API Docs</title>
       <link rel="icon" href="/favicon.png" type="image/png">
@@ -232,49 +237,47 @@ app.get('/api/docs', (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         body {
-          background-color: #0d1117;
-          color: #c9d1d9;
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
+          font-family: 'Courier New', Courier, monospace;
           margin: 0;
-          text-align: center;
+          padding: 0;
+          background-color: #0d1117;
+          color: white;
+          display: flex;
+          height: 100vh;
+          overflow: hidden;
         }
         .container {
-          text-align: center;
-          width: 80%;
-          max-width: 800px;
-        }
-        .footer {
-          position: absolute;
-          bottom: 10px;
-          right: 10px;
-          color: #2196F3;
-          font-weight: bold;
-          cursor: pointer;
+          display: flex;
+          width: 100%;
+          height: 100%;
         }
         .sidebar {
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          width: 200px;
-          background-color: #161b22;
-          padding-top: 20px;
+          width: 250px;
+          color: white;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          padding: 20px;
+          background-color: rgba(0, 0, 0, 0.5);
+          flex-shrink: 0;
         }
         .sidebar a {
-          color: #c9d1d9;
+          color: white;
           text-decoration: none;
           margin: 10px 0;
           font-size: 18px;
+          display: block;
+          padding: 10px;
+          border-radius: 8px;
+          transition: background-color 0.3s, border-color 0.3s;
         }
-        .sidebar a.active {
-          color: #2196F3;
+        .sidebar a:hover, .sidebar a.active {
+          background-color: #1f2937;
+        }
+        .main-content {
+          flex-grow: 1;
+          padding: 20px;
+          overflow-y: auto;
+          background-color: rgba(0, 0, 0, 0.5);
         }
         .api-section {
           margin-top: 20px;
@@ -286,21 +289,30 @@ app.get('/api/docs', (req, res) => {
           border-radius: 5px;
           overflow-x: auto;
         }
+        .footer {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          color: #2196F3;
+          font-weight: bold;
+          cursor: pointer;
+        }
       </style>
     </head>
     <body>
-      <div class="sidebar">
-        <a href="/">Home</a>
-        <a href="/api/docs" class="active">API</a>
-      </div>
       <div class="container">
-        <h1>API Documentation</h1>
-        <div class="api-section">
-          <h2>Fetch Server Status</h2>
-          <p>Endpoint: <code>/api/status/:serverAddress</code></p>
-          <p>Method: GET</p>
-          <p>Response (Online):</p>
-          <pre>{
+        <div class="sidebar">
+          <a href="/">Home</a>
+          <a href="/api/docs" class="active">API</a>
+        </div>
+        <div class="main-content">
+          <h1>API Documentation</h1>
+          <div class="api-section">
+            <h2>Fetch Server Status</h2>
+            <p>Endpoint: <code>/api/status/:serverAddress</code></p>
+            <p>Method: GET</p>
+            <p>Response (Online):</p>
+            <pre>{
   "version": {
     "name": "1.16.5",
     "protocol": 754
@@ -313,18 +325,19 @@ app.get('/api/docs', (req, res) => {
   "description": "A Minecraft Server",
   "latency": 123
 }</pre>
-          <p>Response (Offline):</p>
-          <pre>{
+            <p>Response (Offline):</p>
+            <pre>{
   "error": "offline"
 }</pre>
+          </div>
+          <div class="api-section">
+            <h2>Fetch Server Favicon</h2>
+            <p>Endpoint: <code>/api/png/:serverip</code></p>
+            <p>Method: GET</p>
+            <p>Response: Image (PNG)</p>
+          </div>
+          <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
         </div>
-        <div class="api-section">
-          <h2>Fetch Server Favicon</h2>
-          <p>Endpoint: <code>/api/png/:serverip</code></p>
-          <p>Method: GET</p>
-          <p>Response: Image (PNG)</p>
-        </div>
-        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
       </div>
     </body>
     </html>
