@@ -1,103 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time Minecraft Server Status Checker</title>
-    <link rel="icon" href="/favicon.png" type="image/png">
-    <style>
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 0;
-            background-color: #0d1117;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .top-nav {
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .top-nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 8px;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        .top-nav a:hover, .top-nav a.active {
-            background-color: #1f2937;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            margin: 20px 0;
-            width: 300px;
-            background-color: #161b22;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #238636;
-            color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .server-info {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        .server-info img {
-            margin-right: 20px;
-        }
-        .footer {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            color: #2196F3;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+  <title>Real-time Minecraft Server Status Checker</title>
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="SnqgbXneRqms-XThmlQrJUd-_vXChvd8haWhxHLwX4A" />
+  <style>
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      padding: 0;
+      background-color: #0d1117;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .top-nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .top-nav a:hover, .top-nav a.active {
+      background-color: #1f2937;
+    }
+    .main-content {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      margin: 20px 0;
+      width: 300px;
+      background-color: #161b22;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #238636;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .server-info {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .server-info img {
+      margin-right: 20px;
+    }
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      color: #2196F3;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="top-nav">
-        <a href="/" class="active">Home</a>
-        <a href="/api/docs">API</a>
-    </div>
-    <div class="main-content">
-        <form id="serverForm" onsubmit="navigateToServer(event)">
-            <input type="text" id="serverIp" placeholder="Enter server IP" required>
-            <button type="submit">Get Status</button>
-        </form>
-        <div id="result" class="server-info"></div>
-        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
-    </div>
-    <script>
-        function navigateToServer(event) {
-            event.preventDefault();
-            const serverIp = document.getElementById('serverIp').value;
-            window.location.href = '/' + serverIp;
-        }
-    </script>
+  <div class="top-nav">
+    <a href="/" class="active">Home</a>
+    <a href="/api/docs">API</a>
+  </div>
+  <div class="main-content">
+    <form id="serverForm" onsubmit="navigateToServer(event)">
+      <input type="text" id="serverIp" placeholder="Enter server IP" required>
+      <button type="submit">Get Status</button>
+    </form>
+    <div id="result" class="server-info"></div>
+    <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
+  </div>
+  <script>
+    function navigateToServer(event) {
+      event.preventDefault();
+      const serverIp = document.getElementById('serverIp').value;
+      window.location.href = '/' + serverIp;
+    }
+  </script>
 </body>
 </html>
