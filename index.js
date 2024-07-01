@@ -272,7 +272,6 @@ app.get('/api/docs', (req, res) => {
           overflow-x: auto;
         }
         .footer {
-          position: absolute;
           bottom: 10px;
           right: 10px;
           color: #2196F3;
