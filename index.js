@@ -92,8 +92,8 @@ app.get('/:serverIp', (req, res) => {
           color: white;
           display: flex;
           flex-direction: column;
-          height: 100vh;
-          overflow: hidden;
+          min-height: 100vh;
+          overflow-x: hidden;
         }
         .top-nav {
           display: flex;
@@ -234,8 +234,8 @@ app.get('/api/docs', (req, res) => {
           color: white;
           display: flex;
           flex-direction: column;
-          height: 100vh;
-          overflow: hidden;
+          min-height: 100vh;
+          overflow-x: hidden;
         }
         .top-nav {
           display: flex;
@@ -289,32 +289,33 @@ app.get('/api/docs', (req, res) => {
       <div class="main-content">
         <h1>API Documentation</h1>
         <div class="api-section">
-          <h2>Get Server Status</h2>
-          <p><strong>Endpoint:</strong> <code>/api/status/:serverAddress</code></p>
-          <p><strong>Method:</strong> GET</p>
-          <p><strong>Parameters:</strong> <code>serverAddress</code> - The IP address and optional port of the Minecraft server (e.g., <code>example.com:25565</code> or <code>example.com</code>)</p>
-          <p><strong>Response:</strong></p>
-          <pre>
-  {
-    "version": {
-      "name": "1.16.5",
-      "protocol": 754
-    },
-    "players": {
-      "max": 20,
-      "online": 5
-    },
-    "description": "A Minecraft Server",
-    "latency": 150
-  }
-          </pre>
+          <h2>Server Status</h2>
+          <p>Endpoint: <code>/api/status/:serverAddress</code></p>
+          <p>Method: GET</p>
+          <p>Response (Online):</p>
+          <pre>{
+  "version": {
+    "name": "1.16.5",
+    "protocol": 754
+  },
+  "players": {
+    "max": 20,
+    "online": 5,
+    "sample": []
+  },
+  "description": "A Minecraft Server",
+  "latency": 123
+}</pre>
+          <p>Response (Offline):</p>
+          <pre>{
+  "error": "offline"
+}</pre>
         </div>
         <div class="api-section">
-          <h2>Get Server Favicon</h2>
-          <p><strong>Endpoint:</strong> <code>/api/png/:serverip</code></p>
-          <p><strong>Method:</strong> GET</p>
-          <p><strong>Parameters:</strong> <code>serverip</code> - The IP address and optional port of the Minecraft server (e.g., <code>example.com:25565</code> or <code>example.com</code>)</p>
-          <p><strong>Response:</strong> A PNG image representing the server's favicon.</p>
+          <h2>Server Icon</h2>
+          <p>Endpoint: <code>/api/png/:serverAddress</code></p>
+          <p>Method: GET</p>
+          <p>Response: Image (PNG)</p>
         </div>
         <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
       </div>
@@ -324,5 +325,5 @@ app.get('/api/docs', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server listening at http://localhost:${port}`);
 });
