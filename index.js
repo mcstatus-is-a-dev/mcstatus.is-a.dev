@@ -91,34 +91,26 @@ app.get('/:serverIp', (req, res) => {
           background-color: #0d1117;
           color: white;
           display: flex;
+          flex-direction: column;
           height: 100vh;
           overflow: hidden;
         }
-        .container {
+        .top-nav {
           display: flex;
-          width: 100%;
-          height: 100%;
-        }
-        .sidebar {
-          width: 250px;
-          color: white;
-          display: flex;
-          flex-direction: column;
+          justify-content: center;
           padding: 20px;
           background-color: rgba(0, 0, 0, 0.5);
-          flex-shrink: 0;
         }
-        .sidebar a {
+        .top-nav a {
           color: white;
           text-decoration: none;
-          margin: 10px 0;
+          margin: 0 15px;
           font-size: 18px;
-          display: block;
           padding: 10px;
           border-radius: 8px;
           transition: background-color 0.3s, border-color 0.3s;
         }
-        .sidebar a:hover, .sidebar a.active {
+        .top-nav a:hover, .top-nav a.active {
           background-color: #1f2937;
         }
         .main-content {
@@ -166,19 +158,17 @@ app.get('/:serverIp', (req, res) => {
       </style>
     </head>
     <body>
-      <div class="container">
-        <div class="sidebar">
-          <a href="/" class="active">Home</a>
-          <a href="/api/docs">API</a>
-        </div>
-        <div class="main-content">
-          <form id="serverForm" onsubmit="navigateToServer(event)">
-            <input type="text" id="serverIp" value="${serverIp}" required>
-            <button type="submit">Get Status</button>
-          </form>
-          <div id="result" class="server-info"></div>
-          <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
-        </div>
+      <div class="top-nav">
+        <a href="/" class="active">Home</a>
+        <a href="/api/docs">API</a>
+      </div>
+      <div class="main-content">
+        <form id="serverForm" onsubmit="navigateToServer(event)">
+          <input type="text" id="serverIp" value="${serverIp}" required>
+          <button type="submit">Get Status</button>
+        </form>
+        <div id="result" class="server-info"></div>
+        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
       </div>
       <script>
         function navigateToServer(event) {
@@ -243,34 +233,26 @@ app.get('/api/docs', (req, res) => {
           background-color: #0d1117;
           color: white;
           display: flex;
+          flex-direction: column;
           height: 100vh;
           overflow: hidden;
         }
-        .container {
+        .top-nav {
           display: flex;
-          width: 100%;
-          height: 100%;
-        }
-        .sidebar {
-          width: 250px;
-          color: white;
-          display: flex;
-          flex-direction: column;
+          justify-content: center;
           padding: 20px;
           background-color: rgba(0, 0, 0, 0.5);
-          flex-shrink: 0;
         }
-        .sidebar a {
+        .top-nav a {
           color: white;
           text-decoration: none;
-          margin: 10px 0;
+          margin: 0 15px;
           font-size: 18px;
-          display: block;
           padding: 10px;
           border-radius: 8px;
           transition: background-color 0.3s, border-color 0.3s;
         }
-        .sidebar a:hover, .sidebar a.active {
+        .top-nav a:hover, .top-nav a.active {
           background-color: #1f2937;
         }
         .main-content {
@@ -300,44 +282,41 @@ app.get('/api/docs', (req, res) => {
       </style>
     </head>
     <body>
-      <div class="container">
-        <div class="sidebar">
-          <a href="/">Home</a>
-          <a href="/api/docs" class="active">API</a>
+      <div class="top-nav">
+        <a href="/">Home</a>
+        <a href="/api/docs" class="active">API</a>
+      </div>
+      <div class="main-content">
+        <h1>API Documentation</h1>
+        <div class="api-section">
+          <h2>Get Server Status</h2>
+          <p><strong>Endpoint:</strong> <code>/api/status/:serverAddress</code></p>
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Parameters:</strong> <code>serverAddress</code> - The IP address and optional port of the Minecraft server (e.g., <code>example.com:25565</code> or <code>example.com</code>)</p>
+          <p><strong>Response:</strong></p>
+          <pre>
+  {
+    "version": {
+      "name": "1.16.5",
+      "protocol": 754
+    },
+    "players": {
+      "max": 20,
+      "online": 5
+    },
+    "description": "A Minecraft Server",
+    "latency": 150
+  }
+          </pre>
         </div>
-        <div class="main-content">
-          <h1>API Documentation</h1>
-          <div class="api-section">
-            <h2>Server Status</h2>
-            <p>Endpoint: <code>/api/status/:serverAddress</code></p>
-            <p>Method: GET</p>
-            <p>Response (Online):</p>
-            <pre>{
-  "version": {
-    "name": "1.16.5",
-    "protocol": 754
-  },
-  "players": {
-    "max": 20,
-    "online": 5,
-    "sample": []
-  },
-  "description": "A Minecraft Server",
-  "latency": 123
-}</pre>
-            <p>Response (Offline):</p>
-            <pre>{
-  "error": "offline"
-}</pre>
-          </div>
-          <div class="api-section">
-            <h2>Server Icon</h2>
-            <p>Endpoint: <code>/api/png/:serverAddress</code></p>
-            <p>Method: GET</p>
-            <p>Response: Image (PNG)</p>
-          </div>
-          <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
+        <div class="api-section">
+          <h2>Get Server Favicon</h2>
+          <p><strong>Endpoint:</strong> <code>/api/png/:serverip</code></p>
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Parameters:</strong> <code>serverip</code> - The IP address and optional port of the Minecraft server (e.g., <code>example.com:25565</code> or <code>example.com</code>)</p>
+          <p><strong>Response:</strong> A PNG image representing the server's favicon.</p>
         </div>
+        <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
       </div>
     </body>
     </html>
@@ -345,5 +324,5 @@ app.get('/api/docs', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
