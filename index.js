@@ -226,58 +226,70 @@ app.get('/api/docs', (req, res) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        body {
-          font-family: 'Courier New', Courier, monospace;
-          margin: 0;
-          padding: 0;
-          background-color: #0d1117;
-          color: white;
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-          overflow-x: hidden;
-        }
-        .top-nav {
-          display: flex;
-          justify-content: center;
-          padding: 20px;
-          background-color: rgba(0, 0, 0, 0.5);
-        }
-        .top-nav a {
-          color: white;
-          text-decoration: none;
-          margin: 0 15px;
-          font-size: 18px;
-          padding: 10px;
-          border-radius: 8px;
-          transition: background-color 0.3s, border-color 0.3s;
-        }
-        .top-nav a:hover, .top-nav a.active {
-          background-color: #1f2937;
-        }
-        .main-content {
-          flex-grow: 1;
-          padding: 20px;
-          overflow-y: auto;
-          background-color: rgba(0, 0, 0, 0.5);
-        }
-        .api-section {
-          margin-top: 20px;
-        }
-        pre {
-          background-color: #161b22;
-          color: #c9d1d9;
-          padding: 10px;
-          border-radius: 5px;
-          overflow-x: auto;
-        }
-        .footer {
-          bottom: 10px;
-          right: 10px;
-          color: #2196F3;
-          font-weight: bold;
-          cursor: pointer;
-        }
+body {
+  font-family: 'Courier New', Courier, monospace;
+  margin: 0;
+  padding: 0;
+  background-color: #0d1117;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.top-nav {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.top-nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.top-nav a:hover, .top-nav a.active {
+  background-color: #1f2937;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.api-section {
+  margin-top: 20px;
+}
+
+pre {
+  background-color: #161b22;
+  color: #c9d1d9;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.footer {
+  margin-top: auto; /* Pushes footer to the bottom */
+  align-self: flex-end; /* Aligns to the end of the container */
+  padding: 10px;
+  color: #2196F3;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%; /* Full width */
+  text-align: right; /* Aligns text to the right */
+}
+
       </style>
     </head>
     <body>
