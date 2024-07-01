@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Real-time Minecraft Server Status Checker</title>
-  <link rel="icon" href="/favicon.png" type="image/png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-site-verification" content="SnqgbXneRqms-XThmlQrJUd-_vXChvd8haWhxHLwX4A" />
+  <title>mcstatus.is-a.dev</title>
+  <link rel="icon" href="/favicon.png" type="image/png">
   <style>
     body {
       font-family: 'Courier New', Courier, monospace;
@@ -14,34 +13,26 @@
       background-color: #0d1117;
       color: white;
       display: flex;
+      flex-direction: column;
       height: 100vh;
       overflow: hidden;
     }
-    .container {
+    .top-nav {
       display: flex;
-      width: 100%;
-      height: 100%;
-    }
-    .sidebar {
-      width: 250px;
-      color: white;
-      display: flex;
-      flex-direction: column;
+      justify-content: center;
       padding: 20px;
       background-color: rgba(0, 0, 0, 0.5);
-      flex-shrink: 0;
     }
-    .sidebar a {
+    .top-nav a {
       color: white;
       text-decoration: none;
-      margin: 10px 0;
+      margin: 0 15px;
       font-size: 18px;
-      display: block;
       padding: 10px;
       border-radius: 8px;
       transition: background-color 0.3s, border-color 0.3s;
     }
-    .sidebar a:hover, .sidebar a.active {
+    .top-nav a:hover, .top-nav a.active {
       background-color: #1f2937;
     }
     .main-content {
@@ -89,19 +80,17 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="sidebar">
-      <a href="/" class="active">Home</a>
-      <a href="/api/docs">API</a>
-    </div>
-    <div class="main-content">
-      <form id="serverForm" onsubmit="navigateToServer(event)">
-        <input type="text" id="serverIp" placeholder="Enter server IP" required>
-        <button type="submit">Get Status</button>
-      </form>
-      <div id="result" class="server-info"></div>
-      <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
-    </div>
+  <div class="top-nav">
+    <a href="/" class="active">Home</a>
+    <a href="/api/docs">API</a>
+  </div>
+  <div class="main-content">
+    <form id="serverForm" onsubmit="navigateToServer(event)">
+      <input type="text" id="serverIp" placeholder="Enter Minecraft server IP" required>
+      <button type="submit">Get Status</button>
+    </form>
+    <div id="result" class="server-info"></div>
+    <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
   </div>
   <script>
     function navigateToServer(event) {
@@ -109,6 +98,40 @@
       const serverIp = document.getElementById('serverIp').value;
       window.location.href = '/' + serverIp;
     }
+
+    async function getStatus() {
+      const pathname = window.location.pathname;
+      const serverIp = pathname === '/' ? '' : pathname.substring(1);
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      try {
+        const statusResponse = await fetch('/api/status/' + serverIp);
+        const status = await statusResponse.json();
+
+        const faviconResponse = await fetch('/api/png/' + serverIp);
+        const faviconUrl = faviconResponse.status === 200 ? '/api/png/' + serverIp : '/favicon.png';
+
+        if (status.error === 'offline') {
+          resultDiv.innerHTML = '<p>Server is Offline</p>';
+        } else {
+          resultDiv.innerHTML = `
+            <img src="${faviconUrl}" alt="Server Favicon" width="64" height="64">
+            <div>
+              <p><strong>Version:</strong> ${status.version.name}</p>
+              <p><strong>Players:</strong> ${status.players.online}/${status.players.max}</p>
+              <p><strong>Description:</strong> ${status.description}</p>
+              <p><strong>Latency (From Frankfurt):</strong> ${status.latency} ms</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = '<p>Failed to fetch server status</p>';
+      }
+    }
+
+    // Automatically fetch status when the page loads
+    getStatus();
   </script>
 </body>
 </html>
