@@ -6,6 +6,23 @@ const port = process.env.PORT || 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
+// Helper function to extract text from complex description objects
+function extractText(obj) {
+  let text = '';
+  if (typeof obj === 'string') {
+    return obj;
+  }
+  if (obj.text) {
+    text += obj.text;
+  }
+  if (obj.extra) {
+    for (let item of obj.extra) {
+      text += extractText(item);
+    }
+  }
+  return text;
+}
+
 // Endpoint to fetch Minecraft server favicon
 app.get('/api/png/:serverip', (req, res) => {
   const serverip = req.params.serverip;
@@ -46,15 +63,18 @@ app.get('/api/status/:serverAddress', (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'offline' });
     } else {
-      let description;
-      if (response.description && typeof response.description === 'object' && response.description.extra) {
-        description = response.description.extra.map(component => component.text || '').join('');
-      } else if (typeof response.description === 'string') {
+      // Extract and combine description text
+      let description = '';
+      if (typeof response.description === 'string') {
         description = response.description;
-      } else {
-        description = 'Unknown description format';
+      } else if (response.description) {
+        description = extractText(response.description);
       }
 
+      // Remove favicon from the response
+      delete response.favicon;
+
+      // Create a new object with the modified data
       const serverInfo = {
         version: response.version,
         players: response.players,
