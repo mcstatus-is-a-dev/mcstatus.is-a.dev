@@ -37,9 +37,17 @@
     }
     .main-content {
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
       overflow-y: auto;
       background-color: rgba(0, 0, 0, 0.5);
+    }
+    form {
+      display: flex;
+      align-items: center;
     }
     input[type="text"] {
       padding: 10px;
@@ -59,6 +67,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-left: 10px; /* Add some space between the input and the button */
     }
     .server-info {
       margin-top: 20px;
