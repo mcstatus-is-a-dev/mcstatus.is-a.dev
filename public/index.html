@@ -47,6 +47,7 @@
     }
     form {
       display: flex;
+      flex-direction: column;
       align-items: center;
     }
     input[type="text"] {
@@ -67,7 +68,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-left: 10px; /* Add some space between the input and the button */
+      margin-top: 10px;
     }
     .server-info {
       margin-top: 20px;
@@ -86,6 +87,13 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .edition-switch {
+      margin-top: 10px;
+    }
+    .edition-switch label {
+      margin-right: 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -96,6 +104,14 @@
   <div class="main-content">
     <form id="serverForm" onsubmit="navigateToServer(event)">
       <input type="text" id="serverIp" placeholder="Enter server IP" required>
+      <div class="edition-switch">
+        <label>
+          <input type="radio" name="edition" value="java" checked> Java
+        </label>
+        <label>
+          <input type="radio" name="edition" value="bedrock"> Bedrock
+        </label>
+      </div>
       <button type="submit">Get Status</button>
     </form>
     <div id="result" class="server-info"></div>
@@ -105,7 +121,8 @@
     function navigateToServer(event) {
       event.preventDefault();
       const serverIp = document.getElementById('serverIp').value;
-      window.location.href = '/' + serverIp;
+      const edition = document.querySelector('input[name="edition"]:checked').value;
+      window.location.href = edition === 'bedrock' ? '/bedrock/' + serverIp : '/' + serverIp;
     }
   </script>
 </body>
