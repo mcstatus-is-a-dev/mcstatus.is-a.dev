@@ -1,12 +1,12 @@
 const express = require('express');
 const mc = require('minecraft-protocol');
+const bedrockPing = require('bedrock-protocol').ping;
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 app.use(express.json());
 
-// Helper function to extract text from complex description objects
 function extractText(obj) {
   let text = '';
   if (typeof obj === 'string') {
@@ -23,7 +23,6 @@ function extractText(obj) {
   return text;
 }
 
-// Endpoint to fetch Minecraft server favicon
 app.get('/api/png/:serverip', (req, res) => {
   const serverip = req.params.serverip;
   let [serverHost, serverPort] = serverip.split(':');
@@ -50,7 +49,6 @@ app.get('/api/png/:serverip', (req, res) => {
   });
 });
 
-// Endpoint to fetch Minecraft server status
 app.get('/api/status/:serverAddress', (req, res) => {
   const [serverHost, serverPort] = req.params.serverAddress.split(':');
   const port = serverPort ? parseInt(serverPort, 10) : 25565;
@@ -63,7 +61,6 @@ app.get('/api/status/:serverAddress', (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'offline' });
     } else {
-      // Extract and combine description text
       let description = '';
       if (typeof response.description === 'string') {
         description = response.description;
@@ -71,7 +68,6 @@ app.get('/api/status/:serverAddress', (req, res) => {
         description = extractText(response.description);
       }
 
-      // Create a new object with the modified data
       const serverInfo = {
         version: response.version,
         players: response.players,
@@ -85,14 +81,55 @@ app.get('/api/status/:serverAddress', (req, res) => {
   });
 });
 
-// Serve the main page
+app.get('/api/status/bedrock/:serverAddress', (req, res) => {
+  const [serverHost, serverPort] = req.params.serverAddress.split(':');
+  const port = serverPort ? parseInt(serverPort, 10) : 19132;
+
+  const options = {
+    host: serverHost,
+    port: port,
+    timeout: 5000
+  };
+
+  bedrockPing(options)
+    .then((response) => {
+      const serverInfo = {
+        motd: response.motd,
+        levelName: response.levelName,
+        playersOnline: response.playersOnline,
+        playersMax: response.playersMax,
+        gamemode: response.gamemode,
+        serverId: response.serverId,
+        gamemodeId: response.gamemodeId,
+        portV4: response.portV4,
+        portV6: response.portV6,
+        protocol: response.protocol,
+        version: response.version
+      };
+
+      res.json(serverInfo);
+    })
+    .catch((error) => {
+      console.error('Ping failed:', error);
+      res.status(500).json({ error: 'offline' });
+    });
+});
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
-// Serve the server status page with pre-filled input
 app.get('/:serverIp', (req, res) => {
   const serverIp = req.params.serverIp;
+  serveStatusPage(res, serverIp, 'java');
+});
+
+app.get('/bedrock/:serverIp', (req, res) => {
+  const serverIp = req.params.serverIp;
+  serveStatusPage(res, serverIp, 'bedrock');
+});
+
+function serveStatusPage(res, serverIp, edition) {
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -190,6 +227,12 @@ app.get('/:serverIp', (req, res) => {
           max-height: 200px;
           overflow-y: auto;
         }
+        .edition-switch {
+          margin-top: 10px;
+        }
+        .edition-switch label {
+          margin-right: 10px;
+        }
       </style>
     </head>
     <body>
@@ -202,6 +245,14 @@ app.get('/:serverIp', (req, res) => {
           <input type="text" id="serverIp" value="${serverIp}" required>
           <button type="submit">Get Status</button>
         </form>
+        <div class="edition-switch">
+          <label>
+            <input type="radio" name="edition" value="java" ${edition === 'java' ? 'checked' : ''}> Java
+          </label>
+          <label>
+            <input type="radio" name="edition" value="bedrock" ${edition === 'bedrock' ? 'checked' : ''}> Bedrock
+          </label>
+        </div>
         <div id="result" class="server-info"></div>
         <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
       </div>
@@ -209,21 +260,23 @@ app.get('/:serverIp', (req, res) => {
         function navigateToServer(event) {
           event.preventDefault();
           const serverIp = document.getElementById('serverIp').value;
-          window.location.href = '/' + serverIp;
+          const edition = document.querySelector('input[name="edition"]:checked').value;
+          window.location.href = edition === 'bedrock' ? '/bedrock/' + serverIp : '/' + serverIp;
         }
 
         async function getStatus() {
           const serverIp = "${serverIp}";
+          const edition = "${edition}";
           const resultDiv = document.getElementById('result');
           resultDiv.innerHTML = '';
 
           try {
-            const statusResponse = await fetch('/api/status/' + serverIp);
+            const statusResponse = await fetch(edition === 'bedrock' ? '/api/status/bedrock/' + serverIp : '/api/status/' + serverIp);
             const status = await statusResponse.json();
 
             if (status.error === 'offline') {
               resultDiv.innerHTML = '<p>Server is Offline</p>';
-            } else {
+            } else if (edition === 'java') {
               let playerList = '';
               if (status.players.sample && status.players.sample.length > 0) {
                 playerList = '<div class="player-list"><h3>Online Players:</h3><ul>';
@@ -244,6 +297,17 @@ app.get('/:serverIp', (req, res) => {
                   \${playerList}
                 </div>
               \`;
+            } else { // Bedrock
+              resultDiv.innerHTML = \`
+                <div class="server-details">
+                  <p><strong>MOTD:</strong> \${status.motd}</p>
+                  <p><strong>Version:</strong> \${status.version}</p>
+                  <p><strong>Players:</strong> \${status.playersOnline}/\${status.playersMax}</p>
+                  <p><strong>Gamemode:</strong> \${status.gamemode}</p>
+                  <p><strong>Level Name:</strong> \${status.levelName}</p>
+                  <p><strong>Protocol:</strong> \${status.protocol}</p>
+                </div>
+              \`;
             }
           } catch (error) {
             resultDiv.innerHTML = '<p>Failed to fetch server status</p>';
@@ -252,13 +316,19 @@ app.get('/:serverIp', (req, res) => {
 
         // Automatically fetch status when the page loads
         getStatus();
+
+        // Add event listener to update status when edition is changed
+        document.querySelectorAll('input[name="edition"]').forEach(radio => {
+          radio.addEventListener('change', () => {
+            navigateToServer(new Event('submit'));
+          });
+        });
       </script>
     </body>
     </html>
   `);
-});
+}
 
-// Serve the API docs page
 app.get('/api/docs', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -363,7 +433,30 @@ app.get('/api/docs', (req, res) => {
           <p>Response: Image (PNG)</p>
           <p>Response (Error):</p>
           <pre>{
-  "error": "offline or no favicon"
+ "error": "offline or no favicon"
+}</pre>
+        </div>
+        <div class="api-section">
+          <h2>Bedrock Server Status</h2>
+          <p>Endpoint: <code>/api/status/bedrock/:serverAddress</code></p>
+          <p>Method: GET</p>
+          <p>Response (Online):</p>
+          <pre>{
+  "motd": "Dedicated Server",
+  "levelName": "Bedrock level",
+  "playersOnline": 0,
+  "playersMax": 10,
+  "gamemode": "Survival",
+  "serverId": "13460148391903423507",
+  "gamemodeId": 1,
+  "portV4": 19132,
+  "portV6": 19133,
+  "protocol": "686",
+  "version": "1.21.3"
+}</pre>
+          <p>Response (Offline):</p>
+          <pre>{
+  "error": "offline"
 }</pre>
         </div>
       </div>
