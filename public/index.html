@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <title>Real-time Minecraft Server Status Checker</title>
@@ -49,12 +48,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    .input-group {
+      display: flex;
+      width: 100%;
+      margin-bottom: 20px;
     }
     input[type="text"] {
+      flex-grow: 1;
       padding: 10px;
       font-size: 16px;
-      margin: 20px 0;
-      width: 300px;
       background-color: #161b22;
       color: #c9d1d9;
       border: 1px solid #30363d;
@@ -68,7 +73,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-left: 10px;
     }
     .server-info {
       margin-top: 20px;
@@ -103,7 +108,10 @@
   </div>
   <div class="main-content">
     <form id="serverForm" onsubmit="navigateToServer(event)">
-      <input type="text" id="serverIp" placeholder="Enter server IP" required>
+      <div class="input-group">
+        <input type="text" id="serverIp" placeholder="Enter server IP" required>
+        <button type="submit">Get Status</button>
+      </div>
       <div class="edition-switch">
         <label>
           <input type="radio" name="edition" value="java" checked> Java
@@ -112,7 +120,6 @@
           <input type="radio" name="edition" value="bedrock"> Bedrock
         </label>
       </div>
-      <button type="submit">Get Status</button>
     </form>
     <div id="result" class="server-info"></div>
     <div class="footer" onclick="window.location.href='https://github.com/EducatedSuddenBucket'">Made By EducatedSuddenBucket</div>
