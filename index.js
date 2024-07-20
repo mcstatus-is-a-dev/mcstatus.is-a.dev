@@ -427,7 +427,7 @@ app.get('/api/docs', (req, res) => {
 }</pre>
         </div>
         <div class="api-section">
-          <h2>Server Icon</h2>
+          <h2>Server Icon(Java Only)</h2>
           <p>Endpoint: <code>/api/png/:serverAddress</code></p>
           <p>Method: GET</p>
           <p>Response: Image (PNG)</p>
