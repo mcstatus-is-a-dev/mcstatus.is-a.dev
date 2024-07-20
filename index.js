@@ -398,8 +398,6 @@ app.get('/api/docs', (req, res) => {
           <p>Endpoint: <code>/api/status/:serverAddress</code></p>
           <p>Method: GET</p>
           <p>Response (Online):</p>
-          <p>Note , here sample players are not realy sample, they are limitied to 12 players, or all if you turn on query for your server.</p>
-          <pre>{
   "version": {
     "name": "1.16.5",
     "protocol": 754
