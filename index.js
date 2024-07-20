@@ -70,7 +70,11 @@ app.get('/api/status/:serverAddress', (req, res) => {
 
       const serverInfo = {
         version: response.version,
-        players: response.players,
+        players: {
+          max: response.players.max,
+          online: response.players.online,
+          list: response.players.sample || []
+        },
         description: description,
         latency: response.latency,
         favicon: response.favicon
@@ -278,9 +282,9 @@ function serveStatusPage(res, serverIp, edition) {
               resultDiv.innerHTML = '<p>Server is Offline</p>';
             } else if (edition === 'java') {
               let playerList = '';
-              if (status.players.sample && status.players.sample.length > 0) {
+              if (status.players.list && status.players.list.length > 0) {
                 playerList = '<div class="player-list"><h3>Online Players:</h3><ul>';
-                status.players.sample.forEach(player => {
+                status.players.list.forEach(player => {
                   playerList += \`<li>\${player.name}</li>\`;
                 });
                 playerList += '</ul></div>';
@@ -406,7 +410,7 @@ app.get('/api/docs', (req, res) => {
   "players": {
     "max": 20,
     "online": 5,
-    "sample": [
+    "list": [
       {
         "name": "EducatedSuddenBucket",
         "id": "uuid1"
