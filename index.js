@@ -398,6 +398,7 @@ app.get('/api/docs', (req, res) => {
           <p>Endpoint: <code>/api/status/:serverAddress</code></p>
           <p>Method: GET</p>
           <p>Response (Online):</p>
+          <p>Note , here sample players are not realy sample, they are limitied to 12 players, or all if you turn on query for your server.</p>
           <pre>{
   "version": {
     "name": "1.16.5",
@@ -427,7 +428,7 @@ app.get('/api/docs', (req, res) => {
 }</pre>
         </div>
         <div class="api-section">
-          <h2>Server Icon</h2>
+          <h2>Server Icon(Java Only)</h2>
           <p>Endpoint: <code>/api/png/:serverAddress</code></p>
           <p>Method: GET</p>
           <p>Response: Image (PNG)</p>
