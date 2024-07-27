@@ -139,7 +139,7 @@ function serveStatusPage(res, serverIp, edition) {
     <html lang="en">
     <head>
       <title>mcstatus.is-a.dev</title>
-  <link rel="icon" href="icon_static.png" type="image/png">
+  <link rel="icon" href="https://mcstatus.is-a.dev/icon_static.png" type="image/png">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
@@ -255,7 +255,7 @@ function serveStatusPage(res, serverIp, edition) {
       <div class="main-content">
         <form id="serverForm" onsubmit="navigateToServer(event)">
           <div class="input-group">
-            <img src="icon.gif" width="25" height="25" alt="Minecraft Compass">
+            <img src="https://mcstatus.is-a.dev/icon.gif" width="25" height="25" alt="Minecraft Compass">
             <input type="text" id="serverIp" value="${serverIp}" required>
             <button type="submit">Get Status</button>
           </div>
