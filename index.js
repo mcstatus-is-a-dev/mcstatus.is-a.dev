@@ -133,7 +133,6 @@ app.get('/bedrock/:serverIp', (req, res) => {
   serveStatusPage(res, serverIp, 'bedrock');
 });
 
-
 function serveStatusPage(res, serverIp, edition) {
   res.send(`
     <!DOCTYPE html>
@@ -280,70 +279,6 @@ function serveStatusPage(res, serverIp, edition) {
           window.location.href = edition === 'bedrock' ? '/bedrock/' + serverIp : '/' + serverIp;
         }
 
-        async function getStatus() {
-          const serverIp = "${serverIp}";
-          const edition = "${edition}";
-          const resultDiv = document.getElementById('result');
-          resultDiv.innerHTML = '';
-
-          try {
-            const statusResponse = await fetch(edition === 'bedrock' ? '/api/status/bedrock/' + serverIp : '/api/status/' + serverIp);
-            const status = await statusResponse.json();
-
-            if (status.error === 'offline') {
-              resultDiv.innerHTML = '<p>Server is Offline</p>';
-            } else if (edition === 'java') {
-              let playerList = '';
-              if (status.players.list && status.players.list.length > 0) {
-                playerList = '<div class="player-list"><h3>Online Players:</h3><ul>';
-                status.players.list.forEach(player => {
-                  playerList += `<li>${player.name}</li>`;
-                });
-                playerList += '</ul></div>';
-              }
-
-              resultDiv.innerHTML = `
-                <img src="/api/png/${serverIp}" alt="Server Favicon" width="64" height="64" onerror="this.src='/favicon.png'">
-                <div class="server-details">
-                  <p><strong>Version:</strong> ${status.version.name}</p>
-                  <p><strong>Players:</strong> ${status.players.online}/${status.players.max}</p>
-                  <p><strong>Description:</strong></p>
-                  <div class="motd">${status.description}</div>
-                  <p><strong>Latency:</strong> ${status.latency} ms</p>
-                  ${playerList}
-                </div>
-              `;
-            } else { // Bedrock
-              resultDiv.innerHTML = `
-                <div class="server-details">
-                  <p><strong>MOTD:</strong> ${status.motd}</p>
-                  <p><strong>Version:</strong> ${status.version}</p>
-                  <p><strong>Players:</strong> ${status.playersOnline}/${status.playersMax}</p>
-                  <p><strong>Gamemode:</strong> ${status.gamemode}</p>
-                  <p><strong>Level Name:</strong> ${status.levelName}</p>
-                  <p><strong>Protocol:</strong> ${status.protocol}</p>
-                </div>
-              `;
-            }
-          } catch (error) {
-            resultDiv.innerHTML = '<p>Failed to fetch server status</p>';
-          }
-        }
-
-        // Automatically fetch status when the page loads
-        getStatus();
-
-        // Add event listener to update status when edition is changed
-        document.querySelectorAll('input[name="edition"]').forEach(radio => {
-          radio.addEventListener('change', () => {
-            navigateToServer(new Event('submit'));
-          });
-        });
-      </script>
-    </body>
-    </html>
-  `);
-}
         async function getStatus() {
           const serverIp = "${serverIp}";
           const edition = "${edition}";
