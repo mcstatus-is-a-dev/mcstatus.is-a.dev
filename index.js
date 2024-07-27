@@ -133,6 +133,7 @@ app.get('/bedrock/:serverIp', (req, res) => {
   serveStatusPage(res, serverIp, 'bedrock');
 });
 
+
 function serveStatusPage(res, serverIp, edition) {
   res.send(`
     <!DOCTYPE html>
@@ -181,10 +182,17 @@ function serveStatusPage(res, serverIp, edition) {
           padding: 20px;
           background-color: rgba(0, 0, 0, 0.5);
         }
+        .input-group {
+          display: flex;
+          align-items: center;
+          margin: 20px 0;
+        }
+        .input-group img {
+          margin-right: 10px;
+        }
         input[type="text"] {
           padding: 10px;
           font-size: 16px;
-          margin: 20px 0;
           width: 300px;
           background-color: #161b22;
           color: #c9d1d9;
@@ -199,6 +207,7 @@ function serveStatusPage(res, serverIp, edition) {
           border: none;
           border-radius: 5px;
           cursor: pointer;
+          margin-left: 10px;
         }
         .server-info {
           margin-top: 20px;
@@ -246,8 +255,11 @@ function serveStatusPage(res, serverIp, edition) {
       </div>
       <div class="main-content">
         <form id="serverForm" onsubmit="navigateToServer(event)">
-          <input type="text" id="serverIp" value="${serverIp}" required>
-          <button type="submit">Get Status</button>
+          <div class="input-group">
+            <img src="https://minecraft.wiki/images/Recovery_Compass_JE1_BE1.gif?c0c26" width="25" height="25" alt="Minecraft Compass">
+            <input type="text" id="serverIp" value="${serverIp}" required>
+            <button type="submit">Get Status</button>
+          </div>
         </form>
         <div class="edition-switch">
           <label>
@@ -268,6 +280,70 @@ function serveStatusPage(res, serverIp, edition) {
           window.location.href = edition === 'bedrock' ? '/bedrock/' + serverIp : '/' + serverIp;
         }
 
+        async function getStatus() {
+          const serverIp = "${serverIp}";
+          const edition = "${edition}";
+          const resultDiv = document.getElementById('result');
+          resultDiv.innerHTML = '';
+
+          try {
+            const statusResponse = await fetch(edition === 'bedrock' ? '/api/status/bedrock/' + serverIp : '/api/status/' + serverIp);
+            const status = await statusResponse.json();
+
+            if (status.error === 'offline') {
+              resultDiv.innerHTML = '<p>Server is Offline</p>';
+            } else if (edition === 'java') {
+              let playerList = '';
+              if (status.players.list && status.players.list.length > 0) {
+                playerList = '<div class="player-list"><h3>Online Players:</h3><ul>';
+                status.players.list.forEach(player => {
+                  playerList += `<li>${player.name}</li>`;
+                });
+                playerList += '</ul></div>';
+              }
+
+              resultDiv.innerHTML = `
+                <img src="/api/png/${serverIp}" alt="Server Favicon" width="64" height="64" onerror="this.src='/favicon.png'">
+                <div class="server-details">
+                  <p><strong>Version:</strong> ${status.version.name}</p>
+                  <p><strong>Players:</strong> ${status.players.online}/${status.players.max}</p>
+                  <p><strong>Description:</strong></p>
+                  <div class="motd">${status.description}</div>
+                  <p><strong>Latency:</strong> ${status.latency} ms</p>
+                  ${playerList}
+                </div>
+              `;
+            } else { // Bedrock
+              resultDiv.innerHTML = `
+                <div class="server-details">
+                  <p><strong>MOTD:</strong> ${status.motd}</p>
+                  <p><strong>Version:</strong> ${status.version}</p>
+                  <p><strong>Players:</strong> ${status.playersOnline}/${status.playersMax}</p>
+                  <p><strong>Gamemode:</strong> ${status.gamemode}</p>
+                  <p><strong>Level Name:</strong> ${status.levelName}</p>
+                  <p><strong>Protocol:</strong> ${status.protocol}</p>
+                </div>
+              `;
+            }
+          } catch (error) {
+            resultDiv.innerHTML = '<p>Failed to fetch server status</p>';
+          }
+        }
+
+        // Automatically fetch status when the page loads
+        getStatus();
+
+        // Add event listener to update status when edition is changed
+        document.querySelectorAll('input[name="edition"]').forEach(radio => {
+          radio.addEventListener('change', () => {
+            navigateToServer(new Event('submit'));
+          });
+        });
+      </script>
+    </body>
+    </html>
+  `);
+}
         async function getStatus() {
           const serverIp = "${serverIp}";
           const edition = "${edition}";
