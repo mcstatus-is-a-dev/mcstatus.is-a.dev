@@ -302,7 +302,7 @@ function serveStatusPage(res, serverIp, edition) {
               }
 
               resultDiv.innerHTML = \`
-                <img src="/api/png/\${serverIp}" alt="Server Favicon" width="64" height="64" onerror="this.src='/favicon.png'">
+                <img src="/api/png/\${serverIp}" alt="Server Favicon" width="64" height="64" onerror="this.src='/icon.gif'">
                 <div class="server-details">
                   <p><strong>Version:</strong> \${status.version.name}</p>
                   <p><strong>Players:</strong> \${status.players.online}/\${status.players.max}</p>
