@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>mcstatus.is-a.dev - API Docs</title>
+  <link rel="icon" href="https://mcstatus.is-a.dev/icon_static.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      padding: 0;
+      background-color: #0d1117;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .top-nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .top-nav a:hover, .top-nav a.active {
+      background-color: #1f2937;
+    }
+    .main-content {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .api-section {
+      margin-top: 20px;
+    }
+    pre {
+      background-color: #161b22;
+      color: #c9d1d9;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-nav">
+    <a href="/">Home</a>
+    <a href="/api/docs" class="active">API</a>
+  </div>
+  <div class="main-content">
+    <h1>API Documentation</h1>
+    <div class="api-section">
+      <h2>Server Status</h2>
+      <p>Endpoint: <code>/api/status/:serverAddress</code></p>
+      <p>Method: GET</p>
+      <p>Response (Online):</p>
+      <pre>{
+"version": {
+"name": "1.16.5",
+"protocol": 754
+},
+"players": {
+"max": 20,
+"online": 5,
+"list": [
+  {
+    "name": "EducatedSuddenBucket",
+    "id": "uuid1"
+  },
+  {
+    "name": "SomeoneElseInTheServer",
+    "id": "uuid2"
+  }
+]
+},
+"description": "A Minecraft Server",
+"latency": 123,
+"favicon": "data:image/png;base64,..."
+}</pre>
+      <p>Response (Offline):</p>
+      <pre>{
+"error": "offline"
+}</pre>
+    </div>
+    <div class="api-section">
+      <h2>Server Icon(Java Only)</h2>
+      <p>Endpoint: <code>/api/png/:serverAddress</code></p>
+      <p>Method: GET</p>
+      <p>Response: Image (PNG)</p>
+      <p>Response (Error):</p>
+      <pre>{
+"error": "offline or no favicon"
+}</pre>
+    </div>
+    <div class="api-section">
+      <h2>Bedrock Server Status</h2>
+      <p>Endpoint: <code>/api/status/bedrock/:serverAddress</code></p>
+      <p>Method: GET</p>
+      <p>Response (Online):</p>
+      <pre>{
+"motd": "Dedicated Server",
+"levelName": "Bedrock level",
+"playersOnline": 0,
+"playersMax": 10,
+"gamemode": "Survival",
+"serverId": "13460148391903423507",
+"gamemodeId": 1,
+"portV4": 19132,
+"portV6": 19133,
+"protocol": "686",
+"version": "1.21.3"
+}</pre>
+      <p>Response (Offline):</p>
+      <pre>{
+"error": "offline"
+}</pre>
+    </div>
+  </div>
+</body>
+</html>
