@@ -4,7 +4,7 @@ function serveStatusPage(res, serverIp, edition) {
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <title>mcstatus.is-a.dev</title>
+      <title>mcstatus</title>
       <link rel="icon" href="https://mcstatus.is-a.dev/icon_static.png" type="image/png">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -177,7 +177,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Players:</strong> \${status.players ? \`\${status.players.online}/\${status.players.max}\` : 'Unknown'}</p>
                   <p><strong>Description:</strong></p>
                   <div class="motd">\${status.description || 'No description available'}</div>
-                  <p><strong>Latency:</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency(Central Europe):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                   \${playerList}
                 </div>
               \`;
@@ -190,7 +190,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Gamemode:</strong> \${status.gamemode || 'Unknown'}</p>
                   <p><strong>Level Name:</strong> \${status.levelName || 'Unknown'}</p>
                   <p><strong>Protocol:</strong> \${status.protocol || 'Unknown'}</p>
-                  <p><strong>Latency:</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency(Central Europe):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                 </div>
               \`;
             }
