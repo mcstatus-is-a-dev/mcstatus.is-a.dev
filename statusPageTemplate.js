@@ -177,7 +177,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Players:</strong> \${status.players ? \`\${status.players.online}/\${status.players.max}\` : 'Unknown'}</p>
                   <p><strong>Description:</strong></p>
                   <div class="motd">\${status.description || 'No description available'}</div>
-                  <p><strong>Latency(Central Europe):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency(SouthEast Asia):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                   \${playerList}
                 </div>
               \`;
@@ -190,7 +190,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Gamemode:</strong> \${status.gamemode || 'Unknown'}</p>
                   <p><strong>Level Name:</strong> \${status.levelName || 'Unknown'}</p>
                   <p><strong>Protocol:</strong> \${status.protocol || 'Unknown'}</p>
-                  <p><strong>Latency(Central Europe):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency(SouthEast Asia):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                 </div>
               \`;
             }
