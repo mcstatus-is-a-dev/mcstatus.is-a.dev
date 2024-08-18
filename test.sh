@@ -14,7 +14,7 @@ file="statusPageTemplate.js"
 cp "$file" "$file.bak"
 
 # Update the file
-sed -i "s/Latency(SouthEast Asia)/Latency($country_name)/g" "$file"
+sed -i "s/Latency(SouthEast Asia)/Latency(From $country_name)/g" "$file"
 
 echo "File updated successfully."
 npm i express
