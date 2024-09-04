@@ -111,6 +111,28 @@ function serveStatusPage(res, serverIp, edition) {
         .edition-switch label {
           margin-right: 10px;
         }
+        /* Minecraft color classes */
+        .mc-black { color: #000000; }
+        .mc-dark-blue { color: #0000AA; }
+        .mc-dark-green { color: #00AA00; }
+        .mc-dark-aqua { color: #00AAAA; }
+        .mc-dark-red { color: #AA0000; }
+        .mc-dark-purple { color: #AA00AA; }
+        .mc-gold { color: #FFAA00; }
+        .mc-gray { color: #AAAAAA; }
+        .mc-dark-gray { color: #555555; }
+        .mc-blue { color: #5555FF; }
+        .mc-green { color: #55FF55; }
+        .mc-aqua { color: #55FFFF; }
+        .mc-red { color: #FF5555; }
+        .mc-light-purple { color: #FF55FF; }
+        .mc-yellow { color: #FFFF55; }
+        .mc-white { color: #FFFFFF; }
+        /* Minecraft format classes */
+        .mc-bold { font-weight: bold; }
+        .mc-strikethrough { text-decoration: line-through; }
+        .mc-underline { text-decoration: underline; }
+        .mc-italic { font-style: italic; }
       </style>
     </head>
     <body>
@@ -145,6 +167,65 @@ function serveStatusPage(res, serverIp, edition) {
           window.location.href = edition === 'bedrock' ? '/bedrock/' + serverIp : '/' + serverIp;
         }
 
+        function parseMOTD(input) {
+          const colorMap = {
+            '§0': 'mc-black',
+            '§1': 'mc-dark-blue',
+            '§2': 'mc-dark-green',
+            '§3': 'mc-dark-aqua',
+            '§4': 'mc-dark-red',
+            '§5': 'mc-dark-purple',
+            '§6': 'mc-gold',
+            '§7': 'mc-gray',
+            '§8': 'mc-dark-gray',
+            '§9': 'mc-blue',
+            '§a': 'mc-green',
+            '§b': 'mc-aqua',
+            '§c': 'mc-red',
+            '§d': 'mc-light-purple',
+            '§e': 'mc-yellow',
+            '§f': 'mc-white'
+          };
+
+          const formatMap = {
+            '§l': 'mc-bold',
+            '§m': 'mc-strikethrough',
+            '§n': 'mc-underline',
+            '§o': 'mc-italic'
+          };
+
+          let result = '';
+          let currentSpan = '';
+          let currentClasses = [];
+
+          for (let i = 0; i < input.length; i++) {
+            if (input[i] === '§' && i + 1 < input.length) {
+              if (currentSpan) {
+                result += \`<span class="\${currentClasses.join(' ')}">\${currentSpan}</span>\`;
+                currentSpan = '';
+              }
+
+              const code = input.substr(i, 2);
+              if (colorMap[code]) {
+                currentClasses = [colorMap[code]];
+              } else if (formatMap[code]) {
+                currentClasses.push(formatMap[code]);
+              } else if (code === '§r') {
+                currentClasses = [];
+              }
+              i++;
+            } else {
+              currentSpan += input[i];
+            }
+          }
+
+          if (currentSpan) {
+            result += \`<span class="\${currentClasses.join(' ')}">\${currentSpan}</span>\`;
+          }
+
+          return result || 'No description available';
+        }
+
         async function getStatus() {
           const serverIp = "${serverIp}";
           const edition = "${edition}";
@@ -170,27 +251,31 @@ function serveStatusPage(res, serverIp, edition) {
                 playerList += '</ul></div>';
               }
 
+              const parsedMOTD = parseMOTD(status.description);
+
               resultDiv.innerHTML = \`
                 <img src="/api/png/\${serverIp}" alt="Server Favicon" width="64" height="64" onerror="this.src='/icon.gif'">
                 <div class="server-details">
                   <p><strong>Version:</strong> \${status.version ? status.version.name : 'Unknown'}</p>
                   <p><strong>Players:</strong> \${status.players ? \`\${status.players.online}/\${status.players.max}\` : 'Unknown'}</p>
                   <p><strong>Description:</strong></p>
-                  <div class="motd">\${status.description || 'No description available'}</div>
-                  <p><strong>Latency(SouthEast Asia):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <div class="motd">\${parsedMOTD}</div>
+                  <p><strong>Latency(Country):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                   \${playerList}
                 </div>
               \`;
             } else { // Bedrock
+              const parsedMOTD = parseMOTD(status.motd);
+
               resultDiv.innerHTML = \`
                 <div class="server-details">
-                  <p><strong>MOTD:</strong> \${status.motd || 'Unknown'}</p>
+                  <p><strong>MOTD:</strong> <div class="motd">\${parsedMOTD}</div></p>
                   <p><strong>Version:</strong> \${status.version || 'Unknown'}</p>
                   <p><strong>Players:</strong> \${status.playersOnline !== undefined && status.playersMax !== undefined ? \`\${status.playersOnline}/\${status.playersMax}\` : 'Unknown'}</p>
                   <p><strong>Gamemode:</strong> \${status.gamemode || 'Unknown'}</p>
                   <p><strong>Level Name:</strong> \${status.levelName || 'Unknown'}</p>
                   <p><strong>Protocol:</strong> \${status.protocol || 'Unknown'}</p>
-                  <p><strong>Latency(SouthEast Asia):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency(Country):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                 </div>
               \`;
             }
