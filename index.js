@@ -181,7 +181,29 @@ function extractText(obj) {
   if (typeof obj === 'string') {
     return obj;
   }
+  if (obj.color) {
+    text += `§${getColorCode(obj.color)}`;
+  }
+  if (obj.bold) {
+    text += '§l';
+  }
+  if (obj.italic) {
+    text += '§o';
+  }
+  if (obj.underline) {
+    text += '§n';
+  }
+  if (obj.strikethrough) {
+    text += '§m';
+  }
+  if (obj.obfuscated) {
+    text += '§k';
+  }
   if (obj.text) {
+    // Check if the text block doesn't have any formatting and is a new block
+    if (!obj.color && !obj.bold && !obj.italic && !obj.underline && !obj.strikethrough && !obj.obfuscated) {
+      text += '§r'; // Apply reset code
+    }
     text += obj.text;
   }
   if (obj.extra) {
@@ -191,6 +213,30 @@ function extractText(obj) {
   }
   return text;
 }
+
+
+function getColorCode(colorName) {
+  const colorCodes = {
+    black: '0',
+    dark_blue: '1',
+    dark_green: '2',
+    dark_aqua: '3',
+    dark_red: '4',
+    dark_purple: '5',
+    gold: '6',
+    gray: '7',
+    dark_gray: '8',
+    blue: '9',
+    green: 'a',
+    aqua: 'b',
+    red: 'c',
+    light_purple: 'd',
+    yellow: 'e',
+    white: 'f'
+  };
+  return colorCodes[colorName] || 'f';
+}
+
 
 function resolveSrv(host) {
   return new Promise((resolve, reject) => {
@@ -361,3 +407,5 @@ app.get('/api/docs', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+
+
