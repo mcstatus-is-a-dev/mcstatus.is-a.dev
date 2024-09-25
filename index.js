@@ -50,8 +50,20 @@ function connectToJavaServer(host, port) {
     let buffer = Buffer.alloc(0);
     let serverInfo;
     let pingStartTime;
+    let hasResolvedOrRejected = false;
 
-    client.setTimeout(7000); // Set timeout to 7 seconds
+    // Set a timeout for the entire operation
+    const overallTimeout = setTimeout(() => {
+      if (!hasResolvedOrRejected) {
+        hasResolvedOrRejected = true;
+        client.destroy();
+        const error = new Error('timeout');
+        error.code = 'TIMEOUT';
+        reject(error);
+      }
+    }, 7000); // 7 seconds
+
+    client.setTimeout(7000); // Set socket timeout
 
     client.connect(port, host, () => {
       const hostBuffer = Buffer.from(host, 'utf8');
@@ -91,24 +103,42 @@ function connectToJavaServer(host, port) {
           } else if (packetId === 0x01) {
             const latency = Number(process.hrtime.bigint() - pingStartTime) / 1e6;
             serverInfo.latency = Math.round(latency);
-            resolve(serverInfo);
-            client.destroy();
+            if (!hasResolvedOrRejected) {
+              hasResolvedOrRejected = true;
+              clearTimeout(overallTimeout);
+              client.destroy();
+              resolve(serverInfo);
+            }
           }
         }
       } catch (e) {
-        reject(e);
+        if (!hasResolvedOrRejected) {
+          hasResolvedOrRejected = true;
+          clearTimeout(overallTimeout);
+          client.destroy();
+          reject(e);
+        }
+      }
+    });
+
+    client.on('error', (err) => {
+      if (!hasResolvedOrRejected) {
+        hasResolvedOrRejected = true;
+        clearTimeout(overallTimeout);
+        client.destroy();
+        reject(err);
       }
     });
 
     client.on('timeout', () => {
-      client.destroy();
-      const error = new Error('timeout');
-      error.code = 'TIMEOUT';
-      reject(error);
-    });
-
-    client.on('error', (err) => {
-      reject(err);
+      if (!hasResolvedOrRejected) {
+        hasResolvedOrRejected = true;
+        clearTimeout(overallTimeout);
+        client.destroy();
+        const error = new Error('timeout');
+        error.code = 'TIMEOUT';
+        reject(error);
+      }
     });
 
     client.on('close', () => {
@@ -156,39 +186,52 @@ function pingBedrockServer(host, port) {
   return new Promise((resolve, reject) => {
     const client = dgram.createSocket('udp4');
     const pingPacket = createBedrockPacket();
+    let hasResolvedOrRejected = false;
 
     const timeout = setTimeout(() => {
-      client.close();
-      const error = new Error('timeout');
-      error.code = 'TIMEOUT';
-      reject(error);
-    }, 7000); // Set timeout to 7 seconds
+      if (!hasResolvedOrRejected) {
+        hasResolvedOrRejected = true;
+        client.close();
+        const error = new Error('timeout');
+        error.code = 'TIMEOUT';
+        reject(error);
+      }
+    }, 7000); // 7 seconds
 
     client.on('message', (msg) => {
-      clearTimeout(timeout);
-      try {
-        const serverInfo = readBedrockResponse(msg);
-        const responseTime = BigInt(Date.now()) - BigInt(msg.readBigUInt64BE(1));
-        serverInfo.latency = Number(responseTime);
-        resolve(serverInfo);
-      } catch (error) {
-        reject(error);
-      } finally {
-        client.close();
+      if (!hasResolvedOrRejected) {
+        hasResolvedOrRejected = true;
+        clearTimeout(timeout);
+        try {
+          const serverInfo = readBedrockResponse(msg);
+          const responseTime = BigInt(Date.now()) - BigInt(msg.readBigUInt64BE(1));
+          serverInfo.latency = Number(responseTime);
+          resolve(serverInfo);
+        } catch (error) {
+          reject(error);
+        } finally {
+          client.close();
+        }
       }
     });
 
     client.on('error', (err) => {
-      clearTimeout(timeout);
-      client.close();
-      reject(err);
+      if (!hasResolvedOrRejected) {
+        hasResolvedOrRejected = true;
+        clearTimeout(timeout);
+        client.close();
+        reject(err);
+      }
     });
 
     client.send(pingPacket, 0, pingPacket.length, port, host, (err) => {
       if (err) {
-        clearTimeout(timeout);
-        client.close();
-        reject(err);
+        if (!hasResolvedOrRejected) {
+          hasResolvedOrRejected = true;
+          clearTimeout(timeout);
+          client.close();
+          reject(err);
+        }
       }
     });
   });
@@ -218,9 +261,15 @@ function extractText(obj) {
     text += '§k';
   }
   if (obj.text) {
-    // Check if the text block doesn't have any formatting and is a new block
-    if (!obj.color && !obj.bold && !obj.italic && !obj.underline && !obj.strikethrough && !obj.obfuscated) {
-      text += '§r'; // Apply reset code
+    if (
+      !obj.color &&
+      !obj.bold &&
+      !obj.italic &&
+      !obj.underline &&
+      !obj.strikethrough &&
+      !obj.obfuscated
+    ) {
+      text += '§r';
     }
     text += obj.text;
   }
@@ -279,6 +328,17 @@ async function resolveAndConnect(host, port, isJava = true) {
       port = srvRecord.port;
     }
 
+    // Verify if the domain can be resolved
+    await new Promise((resolve, reject) => {
+      dns.lookup(host, (err, address) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(address);
+        }
+      });
+    });
+
     if (isJava) {
       return await connectToJavaServer(host, port);
     } else {
@@ -293,21 +353,23 @@ async function resolveAndConnect(host, port, isJava = true) {
 function fetchImage(url) {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith('https') ? https : http;
-    protocol.get(url, (response) => {
-      if (response.statusCode === 200) {
-        let data = [];
-        response.on('data', (chunk) => {
-          data.push(chunk);
-        });
-        response.on('end', () => {
-          resolve(Buffer.concat(data));
-        });
-      } else {
-        reject(new Error(`HTTP Status Code: ${response.statusCode}`));
-      }
-    }).on('error', (err) => {
-      reject(err);
-    });
+    protocol
+      .get(url, (response) => {
+        if (response.statusCode === 200) {
+          let data = [];
+          response.on('data', (chunk) => {
+            data.push(chunk);
+          });
+          response.on('end', () => {
+            resolve(Buffer.concat(data));
+          });
+        } else {
+          reject(new Error(`HTTP Status Code: ${response.statusCode}`));
+        }
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
   });
 }
 
@@ -344,9 +406,9 @@ app.get('/api/png/:serverip', async (req, res) => {
     if (err.code === 'TIMEOUT') {
       res.status(504).json({ error: 'timeout' });
     } else if (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN') {
-      res.status(404).json({ error: 'not_found' });
+      res.status(404).json({ error: 'domain_not_found' });
     } else {
-      res.status(500).json({ error: 'server_error' });
+      res.status(500).json({ error: 'offline' });
     }
   }
 });
@@ -382,9 +444,9 @@ app.get('/api/status/:serverAddress', async (req, res) => {
     if (err.code === 'TIMEOUT') {
       res.status(504).json({ error: 'timeout' });
     } else if (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN') {
-      res.status(404).json({ error: 'not_found' });
+      res.status(404).json({ error: 'domain_not_found' });
     } else {
-      res.status(500).json({ error: 'server_error' });
+      res.status(500).json({ error: 'offline' });
     }
   }
 });
@@ -413,9 +475,9 @@ app.get('/api/status/bedrock/:serverAddress', async (req, res) => {
     if (error.code === 'TIMEOUT') {
       res.status(504).json({ error: 'timeout' });
     } else if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
-      res.status(404).json({ error: 'not_found' });
+      res.status(404).json({ error: 'domain_not_found' });
     } else {
-      res.status(500).json({ error: 'server_error' });
+      res.status(500).json({ error: 'offline' });
     }
   }
 });
@@ -441,4 +503,3 @@ app.get('/api/docs', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
-    
