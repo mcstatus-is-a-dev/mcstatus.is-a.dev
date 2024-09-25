@@ -18,4 +18,3 @@ sed -i "s/Latency(Country)/Latency(From $country_name)/g" "$file"
 
 echo "File updated successfully."
 npm i express
-node index.js
