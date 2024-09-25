@@ -1,4 +1,3 @@
-// statusPageTemplate.js
 function serveStatusPage(res, serverIp, edition) {
   res.send(`
     <!DOCTYPE html>
@@ -233,14 +232,39 @@ function serveStatusPage(res, serverIp, edition) {
           resultDiv.innerHTML = '';
 
           try {
-            const statusResponse = await fetch(edition === 'bedrock' ? '/api/status/bedrock/' + serverIp : '/api/status/' + serverIp);
-            const status = await statusResponse.json();
+            const response = await fetch(edition === 'bedrock' ? '/api/status/bedrock/' + serverIp : '/api/status/' + serverIp);
+            const status = await response.json();
 
-            if (status.error) {
-              resultDiv.innerHTML = '<p>Server is Offline</p>';
+            if (!response.ok) {
+              // Handle error based on response status code
+              let errorMessage;
+              switch (response.status) {
+                case 504:
+                  errorMessage = 'The server did not respond in time (timeout).';
+                  break;
+                case 404:
+                  if (status.error === 'domain_not_found') {
+                    errorMessage = 'The server domain could not be found (domain not found).';
+                  } else {
+                    errorMessage = 'The requested resource was not found.';
+                  }
+                  break;
+                case 500:
+                  if (status.error === 'offline') {
+                    errorMessage = 'The server is offline or unreachable.';
+                  } else {
+                    errorMessage = 'An unexpected server error occurred.';
+                  }
+                  break;
+                default:
+                  errorMessage = 'An unexpected error occurred.';
+                  break;
+              }
+              resultDiv.innerHTML = \`<p>\${errorMessage}</p>\`;
               return;
             }
 
+            // Proceed to display the server info
             if (edition === 'java') {
               let playerList = '';
               if (status.players && status.players.list && status.players.list.length > 0) {
@@ -260,7 +284,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Players:</strong> \${status.players ? \`\${status.players.online}/\${status.players.max}\` : 'Unknown'}</p>
                   <p><strong>Description:</strong></p>
                   <div class="motd">\${parsedMOTD}</div>
-                  <p><strong>Latency(Country):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency:</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                   \${playerList}
                 </div>
               \`;
@@ -275,13 +299,13 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Gamemode:</strong> \${status.gamemode || 'Unknown'}</p>
                   <p><strong>Level Name:</strong> \${status.levelName || 'Unknown'}</p>
                   <p><strong>Protocol:</strong> \${status.protocol || 'Unknown'}</p>
-                  <p><strong>Latency(Country):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency:</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                 </div>
               \`;
             }
           } catch (error) {
             console.error('Error fetching server status:', error);
-            resultDiv.innerHTML = '<p>Server is Offline</p>';
+            resultDiv.innerHTML = '<p>An error occurred while fetching the server status.</p>';
           }
         }
 
