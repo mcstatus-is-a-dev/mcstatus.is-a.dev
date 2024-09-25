@@ -11,6 +11,7 @@ const port = process.env.PORT || 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
+// Java Edition Pinger
 function createVarInt(value) {
   const bytes = [];
   while (true) {
@@ -50,10 +51,7 @@ function connectToJavaServer(host, port) {
     let serverInfo;
     let pingStartTime;
 
-    const timeout = setTimeout(() => {
-      client.destroy();
-      reject(new Error('TIMEOUT'));
-    }, 7000);
+    client.setTimeout(7000); // Set timeout to 7 seconds
 
     client.connect(port, host, () => {
       const hostBuffer = Buffer.from(host, 'utf8');
@@ -93,29 +91,33 @@ function connectToJavaServer(host, port) {
           } else if (packetId === 0x01) {
             const latency = Number(process.hrtime.bigint() - pingStartTime) / 1e6;
             serverInfo.latency = Math.round(latency);
-            clearTimeout(timeout);
             resolve(serverInfo);
             client.destroy();
           }
         }
       } catch (e) {
-        clearTimeout(timeout);
         reject(e);
       }
     });
 
+    client.on('timeout', () => {
+      client.destroy();
+      const error = new Error('timeout');
+      error.code = 'TIMEOUT';
+      reject(error);
+    });
+
     client.on('error', (err) => {
-      clearTimeout(timeout);
       reject(err);
     });
 
     client.on('close', () => {
-      clearTimeout(timeout);
       console.log('Connection closed');
     });
   });
 }
 
+// Bedrock Edition Pinger
 function createBedrockPacket() {
   const packetId = Buffer.from([0x01]);
   const timeBuffer = Buffer.alloc(8);
@@ -154,10 +156,13 @@ function pingBedrockServer(host, port) {
   return new Promise((resolve, reject) => {
     const client = dgram.createSocket('udp4');
     const pingPacket = createBedrockPacket();
+
     const timeout = setTimeout(() => {
       client.close();
-      reject(new Error('TIMEOUT'));
-    }, 7000);
+      const error = new Error('timeout');
+      error.code = 'TIMEOUT';
+      reject(error);
+    }, 7000); // Set timeout to 7 seconds
 
     client.on('message', (msg) => {
       clearTimeout(timeout);
@@ -171,6 +176,12 @@ function pingBedrockServer(host, port) {
       } finally {
         client.close();
       }
+    });
+
+    client.on('error', (err) => {
+      clearTimeout(timeout);
+      client.close();
+      reject(err);
     });
 
     client.send(pingPacket, 0, pingPacket.length, port, host, (err) => {
@@ -207,8 +218,9 @@ function extractText(obj) {
     text += '§k';
   }
   if (obj.text) {
+    // Check if the text block doesn't have any formatting and is a new block
     if (!obj.color && !obj.bold && !obj.italic && !obj.underline && !obj.strikethrough && !obj.obfuscated) {
-      text += '§r';
+      text += '§r'; // Apply reset code
     }
     text += obj.text;
   }
@@ -319,17 +331,23 @@ app.get('/api/png/:serverip', async (req, res) => {
           res.send(imageBuffer);
         } catch (err) {
           console.error('Error fetching image:', err);
-          res.status(500).json({ status: 'error', error: 'favicon_fetch_failed' });
+          res.status(500).json({ error: 'Failed to fetch favicon' });
         }
       } else {
-        res.status(400).json({ status: 'error', error: 'invalid_favicon_format' });
+        res.status(400).json({ error: 'Invalid favicon format' });
       }
     } else {
-      res.status(404).json({ status: 'error', error: 'favicon_not_found' });
+      res.status(404).json({ error: 'No favicon available' });
     }
   } catch (err) {
     console.error(err);
-    handleApiError(res, err);
+    if (err.code === 'TIMEOUT') {
+      res.status(504).json({ error: 'timeout' });
+    } else if (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN') {
+      res.status(404).json({ error: 'not_found' });
+    } else {
+      res.status(500).json({ error: 'server_error' });
+    }
   }
 });
 
@@ -361,7 +379,13 @@ app.get('/api/status/:serverAddress', async (req, res) => {
     res.json(serverInfo);
   } catch (err) {
     console.error(err);
-    handleApiError(res, err);
+    if (err.code === 'TIMEOUT') {
+      res.status(504).json({ error: 'timeout' });
+    } else if (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN') {
+      res.status(404).json({ error: 'not_found' });
+    } else {
+      res.status(500).json({ error: 'server_error' });
+    }
   }
 });
 
@@ -386,29 +410,15 @@ app.get('/api/status/bedrock/:serverAddress', async (req, res) => {
     res.json(serverInfo);
   } catch (error) {
     console.error('Ping failed:', error);
-    handleApiError(res, error);
+    if (error.code === 'TIMEOUT') {
+      res.status(504).json({ error: 'timeout' });
+    } else if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
+      res.status(404).json({ error: 'not_found' });
+    } else {
+      res.status(500).json({ error: 'server_error' });
+    }
   }
 });
-
-function handleApiError(res, error) {
-  let status, message;
-
-  if (error.message === 'TIMEOUT') {
-    status = 504;
-    message = 'timeout';
-  } else if (error.code === 'ECONNREFUSED') {
-    status = 503;
-    message = 'connection_refused';
-  } else if (error.code === 'ENOTFOUND') {
-    status = 404;
-    message = 'not_found';
-  } else {
-    status = 500;
-    message = 'server_error';
-  }
-
-  res.status(status).json({ status: 'error', error: message });
-}
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
@@ -431,3 +441,4 @@ app.get('/api/docs', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+    
