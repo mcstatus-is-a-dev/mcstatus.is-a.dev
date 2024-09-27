@@ -63,6 +63,28 @@
   </div>
   <div class="main-content">
     <h1>API Documentation</h1>
+         <h2>NPM Package</h2>
+      <p>You can use the <strong>mcstatus-sdk</strong> npm package to easily integrate Minecraft server status checks into your Node.js applications.</p>
+      <p><strong>Installation:</strong></p>
+      <pre>npm install mcstatus-sdk</pre>
+      <p><strong>Usage Example:</strong></p>
+      <pre>const ServerStatus = require('mcstatus-sdk');
+const client = new ServerStatus();
+
+async function checkStatus() {
+  const javaStatus = await client.getJavaStatus('example.com');
+  console.log(javaStatus);
+
+  const bedrockStatus = await client.getBedrockStatus('example.com');
+  console.log(bedrockStatus);
+
+  const icon = await client.getServerIcon('example.com');
+  console.log(icon);
+}
+
+checkStatus();
+</pre>
+  </div>
     <div class="api-section">
       <h2>Java Server Status</h2>
       <p><strong>Endpoint:</strong> <code>/api/status/:serverAddress</code></p>
