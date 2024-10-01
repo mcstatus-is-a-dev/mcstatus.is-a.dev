@@ -90,7 +90,7 @@ checkStatus();
       <h2>Java Server Status</h2>
       <p><strong>Endpoint:</strong> <code>/api/status/:serverAddress</code></p>
       <p><strong>Method:</strong> GET</p>
-      <p><strong>Response (Server Online - 200 OK):</strong></p>
+      <p><strong>Response (Server Online - 200):</strong></p>
       <pre>{
   "version": {
     "name": "1.16.5",
@@ -114,11 +114,11 @@ checkStatus();
   "latency": 123,
   "favicon": "data:image/png;base64,..."
 }</pre>
-      <p><strong>Response (Server Timeout - 504 Gateway Timeout):</strong></p>
+      <p><strong>Response (Server Timeout - 504):</strong></p>
       <pre>{
   "error": "timeout"
 }</pre>
-      <p><strong>Response (Domain Not Found - 404 Not Found):</strong></p>
+      <p><strong>Response (Domain Not Found - 404):</strong></p>
       <pre>{
   "error": "domain_not_found"
 }</pre>
@@ -132,15 +132,15 @@ checkStatus();
       <p><strong>Endpoint:</strong> <code>/api/png/:serverip</code></p>
       <p><strong>Method:</strong> GET</p>
       <p><strong>Response:</strong> Image (PNG)</p>
-      <p><strong>Response (Server Timeout - 504 Gateway Timeout):</strong></p>
+      <p><strong>Response (Server Timeout - 504):</strong></p>
       <pre>{
   "error": "timeout"
 }</pre>
-      <p><strong>Response (Domain Not Found - 404 Not Found):</strong></p>
+      <p><strong>Response (Domain Not Found - 404):</strong></p>
       <pre>{
   "error": "domain_not_found"
 }</pre>
-      <p><strong>Response (Server Offline or No Favicon - 500 Internal Server Error):</strong></p>
+      <p><strong>Response (Server Offline or No Favicon - 500):</strong></p>
       <pre>{
   "error": "offline"
 }</pre>
@@ -149,7 +149,7 @@ checkStatus();
       <h2>Bedrock Server Status</h2>
       <p><strong>Endpoint:</strong> <code>/api/status/bedrock/:serverAddress</code></p>
       <p><strong>Method:</strong> GET</p>
-      <p><strong>Response (Server Online - 200 OK):</strong></p>
+      <p><strong>Response (Server Online - 200):</strong></p>
       <pre>{
   "motd": "Dedicated Server",
   "levelName": "Bedrock level",
@@ -161,15 +161,15 @@ checkStatus();
   "version": "1.18.0",
   "latency": 50
 }</pre>
-      <p><strong>Response (Server Timeout - 504 Gateway Timeout):</strong></p>
+      <p><strong>Response (Server Timeout - 504):</strong></p>
       <pre>{
   "error": "timeout"
 }</pre>
-      <p><strong>Response (Domain Not Found - 404 Not Found):</strong></p>
+      <p><strong>Response (Domain Not Found - 404):</strong></p>
       <pre>{
   "error": "domain_not_found"
 }</pre>
-      <p><strong>Response (Server Offline or Other Error - 500 Internal Server Error):</strong></p>
+      <p><strong>Response (Server Offline or Other Error - 500):</strong></p>
       <pre>{
   "error": "offline"
 }</pre>
