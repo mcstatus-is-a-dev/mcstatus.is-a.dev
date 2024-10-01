@@ -1,6 +1,6 @@
 #!/bin/bash
 # Download jq
-'curl -Lo jq https://github.com/stedolan/jq/releases/latest/download/jq-linux64 && chmod +x jq
+curl -Lo jq https://github.com/stedolan/jq/releases/latest/download/jq-linux64 && chmod +x jq
 # Fetch the country name using curl and jq
 country_name=$(curl -s https://ipapi.co/json/ | ./jq -r '.country_name')
 
