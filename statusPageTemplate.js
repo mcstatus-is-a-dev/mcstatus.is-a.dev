@@ -8,6 +8,7 @@ function serveStatusPage(res, serverIp, edition) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
+        /* All existing styles remain unchanged */
         body {
           font-family: 'Courier New', Courier, monospace;
           margin: 0;
@@ -110,7 +111,6 @@ function serveStatusPage(res, serverIp, edition) {
         .edition-switch label {
           margin-right: 10px;
         }
-        /* Minecraft color classes */
         .mc-black { color: #000000; }
         .mc-dark-blue { color: #0000AA; }
         .mc-dark-green { color: #00AA00; }
@@ -127,7 +127,6 @@ function serveStatusPage(res, serverIp, edition) {
         .mc-light-purple { color: #FF55FF; }
         .mc-yellow { color: #FFFF55; }
         .mc-white { color: #FFFFFF; }
-        /* Minecraft format classes */
         .mc-bold { font-weight: bold; }
         .mc-strikethrough { text-decoration: line-through; }
         .mc-underline { text-decoration: underline; }
@@ -235,26 +234,18 @@ function serveStatusPage(res, serverIp, edition) {
             const response = await fetch(edition === 'bedrock' ? '/api/status/bedrock/' + serverIp : '/api/status/' + serverIp);
             const status = await response.json();
 
-            if (!response.ok) {
-              // Handle error based on response status code
+            // Handle error responses based on the error field
+            if (status.error) {
               let errorMessage;
-              switch (response.status) {
-                case 504:
+              switch (status.error) {
+                case 'timeout':
                   errorMessage = 'The server did not respond in time (timeout).';
                   break;
-                case 404:
-                  if (status.error === 'domain_not_found') {
-                    errorMessage = 'The server domain could not be found (domain not found).';
-                  } else {
-                    errorMessage = 'The requested resource was not found.';
-                  }
+                case 'domain_not_found':
+                  errorMessage = 'The server domain could not be found (domain not found).';
                   break;
-                case 500:
-                  if (status.error === 'offline') {
-                    errorMessage = 'The server is offline or unreachable.';
-                  } else {
-                    errorMessage = 'An unexpected server error occurred.';
-                  }
+                case 'offline':
+                  errorMessage = 'The server is offline or unreachable.';
                   break;
                 default:
                   errorMessage = 'An unexpected error occurred.';
@@ -284,7 +275,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Players:</strong> \${status.players ? \`\${status.players.online}/\${status.players.max}\` : 'Unknown'}</p>
                   <p><strong>Description:</strong></p>
                   <div class="motd">\${parsedMOTD}</div>
-                  <p><strong>Latency(Country):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency:</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                   \${playerList}
                 </div>
               \`;
@@ -299,7 +290,7 @@ function serveStatusPage(res, serverIp, edition) {
                   <p><strong>Gamemode:</strong> \${status.gamemode || 'Unknown'}</p>
                   <p><strong>Level Name:</strong> \${status.levelName || 'Unknown'}</p>
                   <p><strong>Protocol:</strong> \${status.protocol || 'Unknown'}</p>
-                  <p><strong>Latency(Country):</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
+                  <p><strong>Latency:</strong> \${status.latency !== undefined ? \`\${status.latency} ms\` : 'Unknown'}</p>
                 </div>
               \`;
             }
