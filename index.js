@@ -393,22 +393,22 @@ app.get('/api/png/:serverip', async (req, res) => {
           res.send(imageBuffer);
         } catch (err) {
           console.error('Error fetching image:', err);
-          res.status(500).json({ error: 'Failed to fetch favicon' });
+          res.json({ error: 'Failed to fetch favicon' });
         }
       } else {
-        res.status(400).json({ error: 'Invalid favicon format' });
+        res.json({ error: 'Invalid favicon format' });
       }
     } else {
-      res.status(404).json({ error: 'No favicon available' });
+      res.json({ error: 'No favicon available' });
     }
   } catch (err) {
     console.error(err);
     if (err.code === 'TIMEOUT') {
-      res.status(504).json({ error: 'timeout' });
+      res.json({ error: 'timeout' });
     } else if (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN') {
-      res.status(404).json({ error: 'domain_not_found' });
+      res.json({ error: 'domain_not_found' });
     } else {
-      res.status(500).json({ error: 'offline' });
+      res.json({ error: 'offline' });
     }
   }
 });
@@ -442,11 +442,11 @@ app.get('/api/status/:serverAddress', async (req, res) => {
   } catch (err) {
     console.error(err);
     if (err.code === 'TIMEOUT') {
-      res.status(504).json({ error: 'timeout' });
+      res.json({ error: 'timeout' });
     } else if (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN') {
-      res.status(404).json({ error: 'domain_not_found' });
+      res.json({ error: 'domain_not_found' });
     } else {
-      res.status(500).json({ error: 'offline' });
+      res.json({ error: 'offline' });
     }
   }
 });
@@ -473,11 +473,11 @@ app.get('/api/status/bedrock/:serverAddress', async (req, res) => {
   } catch (error) {
     console.error('Ping failed:', error);
     if (error.code === 'TIMEOUT') {
-      res.status(504).json({ error: 'timeout' });
+      res.json({ error: 'timeout' });
     } else if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
-      res.status(404).json({ error: 'domain_not_found' });
+      res.json({ error: 'domain_not_found' });
     } else {
-      res.status(500).json({ error: 'offline' });
+      res.json({ error: 'offline' });
     }
   }
 });
