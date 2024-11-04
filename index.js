@@ -393,13 +393,13 @@ app.get('/api/png/:serverip', async (req, res) => {
           res.send(imageBuffer);
         } catch (err) {
           console.error('Error fetching image:', err);
-          res.json({ error: 'Failed to fetch favicon' });
+          res.json({ error: 'cant_get_favicon' });
         }
       } else {
-        res.json({ error: 'Invalid favicon format' });
+        res.json({ error: 'invalid_favicon' });
       }
     } else {
-      res.json({ error: 'No favicon available' });
+      res.json({ error: 'no_favicon' });
     }
   } catch (err) {
     console.error(err);
